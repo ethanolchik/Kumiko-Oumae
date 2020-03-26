@@ -352,7 +352,7 @@ class Music(commands.Cog):
 
         embed = discord.Embed(
             title="Now PLaying",
-            description=f"{vc.source.title}\nRequested by {vc.source.requester}\n duration: {vc.source.duration}"
+            description=f"{vc.source.title}\nRequested by {vc.source.requester}\n"
         )
 
         player.np = await ctx.send(f'**Now Playing:** `{vc.source.title}` '
