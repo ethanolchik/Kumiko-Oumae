@@ -1,0 +1,4 @@
+discord
+python
+timeago
+youtube-dl
