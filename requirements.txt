@@ -1,0 +1,5 @@
+discord
+youtube-dl
+wavelink
+timeago
+python
