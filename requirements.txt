@@ -17,3 +17,6 @@ pylint==2.4.4
 websockets==8.1
 wrapt==1.11.2
 yarl==1.4.2
+git+https://github.com/Rapptz/discord-ext-menus
+git+https://github.com/Rapptz/discord.py@master#egg=discord.py[voice]
+git+https://github.com/Devoxin/Lavalink.py@dev

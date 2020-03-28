@@ -62,7 +62,7 @@ class UserInfo(commands.Cog):
 
 
     @commands.command()
-    async def avatar(ctx, *, user: discord.Member = None):
+    async def avatar(self, ctx, *, user: discord.Member = None):
         """ Get the avatar of you or someone else """
         user = user or ctx.author
         await ctx.send(f"Avatar to **{user.name}**\n{user.avatar_url_as(size=1024)}")
