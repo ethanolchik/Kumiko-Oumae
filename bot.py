@@ -152,7 +152,7 @@ async def help(ctx, branch = None):
       await ctx.send(embed=embed)
 
 
-bot.run('Njg1NTIxMjM2NjQ2MDM1NDkw.XnyA2w.i3mOiL6V0KJxdY1frlf1rwlUhGg')
+bot.run('Njg1NTIxMjM2NjQ2MDM1NDkw.Xn87cw.4EHBLmUUvUYYcTURtc_js9M7Q9I')
 
 
 
