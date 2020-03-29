@@ -2,6 +2,7 @@ import math
 import re
 import copy
 
+import asyncio
 import discord
 import lavalink
 from discord.ext import commands, menus, tasks
@@ -34,7 +35,7 @@ print(lavalink.__version__)
 def get_bar(current, total):
     n = 20
     num = int(current / total * n)
-    return "▬" * num + "▭" + "―" * (n - num)
+    return "▬" * num + "▭" + "=" * (n - num)
 
 
 class Music(commands.Cog):
@@ -73,21 +74,16 @@ class Music(commands.Cog):
         return guild_check
     async def cog_command_error(self, ctx, error):
         if isinstance(error, commands.CommandInvokeError):
-            await ctx.send(
-                f"""
-                > Error In Command!
+            embed = discord.Embed(
+                title="An Unexpected Error Occurred!",
+                description=f"""
                 ```cmd
                 {error.original}
-                ``` My Owner has been notified!
-                """
+                ```
+                """,
+                inline=False
             )
-            owner = commands.Bot.get_user(bot.owner_id)
-            await owner.send(f"""
-                > Error In Command!
-                ```cmd
-                {error.original}
-                ``` DO SOMETHING YOU FAT FUCK
-                """)
+            await ctx.send(embed=embed)
 
 
     async def connect_to(self, guild_id: int, channel_id: str):
@@ -99,14 +95,14 @@ class Music(commands.Cog):
     def rq_check(ctx):
         return (
             ctx.author.id
-            == ctx.bot.lavalink.players.get(ctx.guild.id).current.requester
+            == ctx.bot.lavalink.player_manager.get(ctx.guild.id).current.requester
         )
 
     @commands.command(aliases=["p"])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def play(self, ctx, *, query: str):
         """ Searches and plays a song from a given query. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         query = query.strip("<>")
 
@@ -126,16 +122,16 @@ class Music(commands.Cog):
             for track in tracks:
                 player.add(requester=ctx.author.id, track=track)
 
-            embed.title = f"{PLAY_EMOJI} | Playlist Added To The Queue!"
-            other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat OFF')} | {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle OFF')}"
+            embed.title = f"{PLAY_EMOJI} Playlist Added To The Queue!"
+            other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle `disabled`')}"
             embed.description = (
                 f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks\n{other}'
             )
             await ctx.send(embed=embed)
         else:
             track = results["tracks"][0]
-            embed.title = f"{PLAY_EMOJI} | Track Added To The Queue"
-            other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat OFF')} | {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle OFF')}"
+            embed.title = f"{PLAY_EMOJI} Track Added To The Queue"
+            other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle `disabled`')}"
             embed.description = (
                 f'[{track["info"]["title"]}]({track["info"]["uri"]})\n{other}'
             )
@@ -157,7 +153,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def seek(self, ctx, *, time: str):
         """ Seeks to a given position in a track. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         seconds = time_rx.search(time)
         if not seconds:
@@ -170,39 +166,39 @@ class Music(commands.Cog):
         await player.seek(track_time)
 
         await ctx.send(
-            f"ℹ | Moved track to **{lavalink.utils.format_time(track_time)}**"
+            f"ℹ Moved track to **{lavalink.utils.format_time(track_time)}**"
         )
 
     @commands.command(aliases=["forceskip"])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def skip(self, ctx):
         """ Skips the current track. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             return await ctx.send(
-                f"{PAUSE_EMOJI} | Not playing.", delete_after=DEL_AFTER_TIME
+                f"{PAUSE_EMOJI} Not playing.", delete_after=DEL_AFTER_TIME
             )
 
         await player.skip()
-        embed = discord.Embed(title="⏭ | Skipped.", color=EMBED_COLOR)
+        embed = discord.Embed(title="⏭ Skipped.", color=EMBED_COLOR)
         await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
     @commands.command()
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def stop(self, ctx):
         """ Stops the player and clears its queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             return await ctx.send(
-                f"{PAUSE_EMOJI} | Not playing.", delete_after=DEL_AFTER_TIME
+                f"{PAUSE_EMOJI} Not playing.", delete_after=DEL_AFTER_TIME
             )
 
         player.queue.clear()
         await player.stop()
         embed = discord.Embed(
-            title=f"{STOP_EMOJI} | Stopped. (Queue cleared)", color=EMBED_COLOR
+            title=f"{STOP_EMOJI} Stopped. (Queue cleared)", color=EMBED_COLOR
         )
         await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
@@ -210,12 +206,13 @@ class Music(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def now(self, ctx):
         """ Shows some stats about the currently playing song. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.current:
             return await ctx.send(
-                f"{PAUSE_EMOJI} | Nothing playing.", delete_after=DEL_AFTER_TIME
+                f"{PAUSE_EMOJI} Nothing playing.", delete_after=DEL_AFTER_TIME
             )
+
         old_menu = self.open_menus.get(ctx.channel.id)
         if old_menu:
             old_menu.stop()
@@ -230,36 +227,46 @@ class Music(commands.Cog):
             cur = int(player.position / 1000)
             dur = int(player.current.duration / 1000)
         bar = "\n" + self.get_bar(cur, dur) if (cur and dur) else ""
-        other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat OFF')} | {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle OFF')}"
+        other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle `disabled`')}"
         cleaned_title = await (commands.clean_content(escape_markdown=True)).convert(
             ctx, player.current.title
         )
-        song = f"**[{cleaned_title}]({player.current.uri})**\n({position}/{duration}){bar}\n{other}"
+        timeleft = ReactionMenu.update_timeleft()
+
+        song = f"**[{cleaned_title}]({player.current.uri})**\n"
 
         embed = discord.Embed(
-            color=EMBED_COLOR, title=f"{PLAY_EMOJI} | Now Playing", description=song
+            color=EMBED_COLOR, title=f"{PLAY_EMOJI} Now Playing", description=song
         )
-        embed.set_image(
+        embed.add_field(
+            name="Requested by",
+            value=f"{self.bot.get_user(player.current.requester).mention}",
+            inline=True
+        )
+        print(player.current)
+        embed.add_field(
+            name="Time Left",
+            value=f"""{dur - cur} left""",
+            inline=True
+        )
+        embed.set_thumbnail(
             url=f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
-        )
-        embed.set_footer(
-            text=f"Omega Music Player",
-            icon_url=self.bot.user.avatar_url_as(static_format="png"),
         )
         m = await ctx.send(embed=embed)
         menu = ReactionMenu(m)
         await menu.start(ctx)
         self.open_menus[ctx.channel.id] = menu
 
+
     @commands.command(aliases=["q"])
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def queue(self, ctx, page: int = 1):
         """ Shows the player's queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.queue:
             return await ctx.send(
-                f"{PAUSE_EMOJI} | Nothing queued.", delete_after=DEL_AFTER_TIME
+                f"{PAUSE_EMOJI} Nothing is in the queue.", delete_after=DEL_AFTER_TIME
             )
 
         items_per_page = 10
@@ -283,37 +290,37 @@ class Music(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pause(self, ctx):
         """ Pauses/Resumes the current track. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             return await ctx.send(
-                f"{PAUSE_EMOJI} | Not playing.", delete_after=DEL_AFTER_TIME
+                f"{PAUSE_EMOJI} Not playing.", delete_after=DEL_AFTER_TIME
             )
 
         if player.paused:
             await player.set_pause(False)
-            embed = discord.Embed(title=f"{PLAY_EMOJI} | Resumed", color=EMBED_COLOR)
+            embed = discord.Embed(title=f"{PLAY_EMOJI} Resumed", color=EMBED_COLOR)
             await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
         else:
             await player.set_pause(True)
-            embed = discord.Embed(title=f"{PAUSE_EMOJI} | Paused", color=EMBED_COLOR)
+            embed = discord.Embed(title=f"{PAUSE_EMOJI} Paused", color=EMBED_COLOR)
             await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
     @commands.command(aliases=["vol"])
     @commands.cooldown(1, 4, commands.BucketType.user)
     async def volume(self, ctx, volume: int = None):
         """ Changes the player's volume. Must be between 0 and 1000. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not volume:
             embed = discord.Embed(
-                title=f"{VOLUME_ON_EMOJI} | {player.volume}%", color=EMBED_COLOR
+                title=f"{VOLUME_ON_EMOJI} {player.volume}%", color=EMBED_COLOR
             )
             return await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
         await player.set_volume(volume)
         embed = discord.Embed(
-            title=f"{VOLUME_ON_EMOJI} | Set to {player.volume}%", color=EMBED_COLOR
+            title=f"{VOLUME_ON_EMOJI} Set to {player.volume}%", color=EMBED_COLOR
         )
         await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
@@ -321,15 +328,15 @@ class Music(commands.Cog):
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def shuffle(self, ctx):
         """ Shuffles the player's queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player.is_playing:
             embed = discord.Embed(
-                title=f"{PAUSE_EMOJI} | Nothing playing.", color=EMBED_COLOR
+                title=f"{PAUSE_EMOJI} Nothing playing.", color=EMBED_COLOR
             )
             return await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
         player.shuffle = not player.shuffle
         embed = discord.Embed(
-            title=f"{SHUFFLE_EMOJI} | Shuffle "
+            title=f"{SHUFFLE_EMOJI} Shuffle "
             + ("enabled" if player.shuffle else "disabled"),
             color=EMBED_COLOR,
         )
@@ -339,18 +346,18 @@ class Music(commands.Cog):
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def repeat(self, ctx):
         """ Repeats the current song until the command is invoked again. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             embed = discord.Embed(
-                title=f"{PAUSE_EMOJI} | Nothing playing.", color=EMBED_COLOR
+                title=f"{PAUSE_EMOJI} Nothing playing.", color=EMBED_COLOR
             )
             return await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
         player.repeat = not player.repeat
         embed = discord.Embed(
-            title=f"{REPEAT_EMOJI} | Repeat "
-            + ("enabled" if player.repeat else "disabled"),
+            title=f"{REPEAT_EMOJI} Repeat "
+            + ("`ON`" if player.repeat else "`OFF`"),
             color=EMBED_COLOR,
         )
         await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
@@ -359,17 +366,17 @@ class Music(commands.Cog):
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def remove(self, ctx, index: int):
         """ Removes an item from the player's queue with the given index. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.queue:
             embed = discord.Embed(
-                title=f"{PAUSE_EMOJI} | Nothing queued.", color=EMBED_COLOR
+                title=f"{PAUSE_EMOJI} Nothing in the queue.", color=EMBED_COLOR
             )
             return await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
         if index > len(player.queue) or index < 1:
             embed = discord.Embed(
-                title=f"Index has to be **between** 1 and {len(player.queue)}.",
+                title=f"Index has to be between 1 and {len(player.queue)}.",
                 color=EMBED_COLOR,
             )
             return await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
@@ -385,7 +392,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def find(self, ctx, *, query):
         """ Lists the first 10 search results from a given query. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not query.startswith("ytsearch:") and not query.startswith("scsearch:"):
             query = "ytsearch:" + query
@@ -393,7 +400,7 @@ class Music(commands.Cog):
         results = await player.node.get_tracks(query)
 
         if not results or not results["tracks"]:
-            return await ctx.send("ℹ | Nothing found.", delete_after=DEL_AFTER_TIME)
+            return await ctx.send("Sorry, i couldn't find anything...", delete_after=DEL_AFTER_TIME)
 
         tracks = results["tracks"][:10]  # First 10 results
 
@@ -410,7 +417,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def disconnect(self, ctx):
         """ Disconnects the player from the voice channel and clears its queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_connected:
             embed = discord.Embed(title="Not connected.", color=EMBED_COLOR)
@@ -430,12 +437,12 @@ class Music(commands.Cog):
         player.queue.clear()
         await player.stop()
         await self.connect_to(ctx.guild.id, None)
-        embed = discord.Embed(title=f"{STOP_EMOJI} | Disconnected.", color=EMBED_COLOR)
+        embed = discord.Embed(title=f"{STOP_EMOJI} Disconnected.", color=EMBED_COLOR)
         await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
     async def ensure_voice(self, ctx):
         """ This check ensures that the bot and command author are in the same voicechannel. """
-        player = self.bot.lavalink.players.create(
+        player = self.bot.lavalink.player_manager.create(
             ctx.guild.id, endpoint=str(ctx.guild.region)
         )
         should_connect = ctx.command.name in ("play",)
@@ -485,7 +492,7 @@ class ReactionMenu(menus.Menu):
                 cur = int(self.player.position / 1000)
                 dur = int(self.player.current.duration / 1000)
             bar = "\n" + self.get_bar(cur, dur) if (cur and dur) else ""
-            other = f"{(REPEAT_EMOJI if self.player.repeat else 'Repeat OFF')} | {(SHUFFLE_EMOJI if self.player.shuffle else 'Shuffle OFF')}"
+            other = f"{(REPEAT_EMOJI if self.player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if self.player.shuffle else 'Shuffle `disabled`')}"
             cleaned_title = await (
                 commands.clean_content(escape_markdown=True)
             ).convert(self.ctx, self.player.current.title)
@@ -498,10 +505,11 @@ class ReactionMenu(menus.Menu):
         except (AttributeError, discord.errors.NotFound):
             self.update_playbar.stop()
 
+
     async def send_initial_message(self, ctx, channel):
         self.ctx = ctx
         self.bot = ctx.bot
-        self.player = self.bot.lavalink.players.get(self.ctx.guild.id)
+        self.player = self.bot.lavalink.player_manager.get(self.ctx.guild.id)
         copy.copy(self.update_playbar).start()
         return self.msg
 

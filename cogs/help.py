@@ -76,7 +76,7 @@ class Help(commands.Cog):
                     inline = False
                 )
                 await ctx.send(embed=embed)
-            elif branch.upper() == "USERINFO":
+            elif branch == "userinfo":
                 embed = discord.Embed(
                     title="Help",
                     description="Userinfo Commands: ",
@@ -91,6 +91,19 @@ class Help(commands.Cog):
                     inline=False
                 )
                 await ctx.send(embed=embed)
+            elif branch == "translate":
+                embed = discord.Embed(
+                    title="Help",
+                    description="Translation Commands: ",
+                    colour=0x0EF7E2
+                )
+                embed.add_field(
+                    name="Translation",
+                    value="""
+                    
+                    """
+                )
+
 
 def setup(bot):
     bot.add_cog(Help(bot))
