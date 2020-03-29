@@ -95,14 +95,14 @@ class Music(commands.Cog):
     def rq_check(ctx):
         return (
             ctx.author.id
-            == ctx.bot.lavalink.players.get(ctx.guild.id).current.requester
+            == ctx.bot.lavalink.player_manager.get(ctx.guild.id).current.requester
         )
 
     @commands.command(aliases=["p"])
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def play(self, ctx, *, query: str):
         """ Searches and plays a song from a given query. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         query = query.strip("<>")
 
@@ -153,7 +153,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def seek(self, ctx, *, time: str):
         """ Seeks to a given position in a track. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         seconds = time_rx.search(time)
         if not seconds:
@@ -173,7 +173,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def skip(self, ctx):
         """ Skips the current track. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             return await ctx.send(
@@ -188,7 +188,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def stop(self, ctx):
         """ Stops the player and clears its queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             return await ctx.send(
@@ -206,7 +206,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 10, commands.BucketType.user)
     async def now(self, ctx):
         """ Shows some stats about the currently playing song. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.current:
             return await ctx.send(
@@ -262,7 +262,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def queue(self, ctx, page: int = 1):
         """ Shows the player's queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.queue:
             return await ctx.send(
@@ -290,7 +290,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def pause(self, ctx):
         """ Pauses/Resumes the current track. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             return await ctx.send(
@@ -310,7 +310,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 4, commands.BucketType.user)
     async def volume(self, ctx, volume: int = None):
         """ Changes the player's volume. Must be between 0 and 1000. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not volume:
             embed = discord.Embed(
@@ -328,7 +328,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def shuffle(self, ctx):
         """ Shuffles the player's queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
         if not player.is_playing:
             embed = discord.Embed(
                 title=f"{PAUSE_EMOJI} Nothing playing.", color=EMBED_COLOR
@@ -346,7 +346,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 2, commands.BucketType.user)
     async def repeat(self, ctx):
         """ Repeats the current song until the command is invoked again. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_playing:
             embed = discord.Embed(
@@ -366,7 +366,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def remove(self, ctx, index: int):
         """ Removes an item from the player's queue with the given index. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.queue:
             embed = discord.Embed(
@@ -392,7 +392,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 3, commands.BucketType.user)
     async def find(self, ctx, *, query):
         """ Lists the first 10 search results from a given query. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not query.startswith("ytsearch:") and not query.startswith("scsearch:"):
             query = "ytsearch:" + query
@@ -417,7 +417,7 @@ class Music(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def disconnect(self, ctx):
         """ Disconnects the player from the voice channel and clears its queue. """
-        player = self.bot.lavalink.players.get(ctx.guild.id)
+        player = self.bot.lavalink.player_manager.get(ctx.guild.id)
 
         if not player.is_connected:
             embed = discord.Embed(title="Not connected.", color=EMBED_COLOR)
@@ -442,7 +442,7 @@ class Music(commands.Cog):
 
     async def ensure_voice(self, ctx):
         """ This check ensures that the bot and command author are in the same voicechannel. """
-        player = self.bot.lavalink.players.create(
+        player = self.bot.lavalink.player_manager.create(
             ctx.guild.id, endpoint=str(ctx.guild.region)
         )
         should_connect = ctx.command.name in ("play",)
@@ -509,7 +509,7 @@ class ReactionMenu(menus.Menu):
     async def send_initial_message(self, ctx, channel):
         self.ctx = ctx
         self.bot = ctx.bot
-        self.player = self.bot.lavalink.players.get(self.ctx.guild.id)
+        self.player = self.bot.lavalink.player_manager.get(self.ctx.guild.id)
         copy.copy(self.update_playbar).start()
         return self.msg
 

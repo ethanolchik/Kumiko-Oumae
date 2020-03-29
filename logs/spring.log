@@ -1,4 +1,4 @@
-2020-03-28 12:22:15.180  INFO 4312 --- [main] lavalink.server.Launcher                 : 
+2020-03-29 13:22:47.725  INFO 13896 --- [main] lavalink.server.Launcher                 : 
 
 [32m       .  [31m _                  _ _       _    [32m__ _ _
 [32m      /\\ [31m| | __ ___   ____ _| (_)_ __ | | __[32m\ \ \ \
@@ -16,20 +16,37 @@
 	JVM:            13.0.2
 	Lavaplayer      1.3.38
 
-2020-03-28 12:22:15.365  INFO 4312 --- [main] lavalink.server.Launcher                 : Starting Launcher on EitanAdam with PID 4312 (C:\Users\eitan\OmegaBot\Lavalink.jar started by eitan in C:\Users\eitan\OmegaBot)
-2020-03-28 12:22:15.366  INFO 4312 --- [main] lavalink.server.Launcher                 : No active profile set, falling back to default profiles: default
-2020-03-28 12:22:15.560  WARN 4312 --- [background-preinit] o.s.h.c.j.Jackson2ObjectMapperBuilder    : For Jackson Kotlin classes support please add "com.fasterxml.jackson.module:jackson-module-kotlin" to the classpath
-2020-03-28 12:22:18.061  WARN 4312 --- [main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
-2020-03-28 12:22:18.093  INFO 4312 --- [main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
-2020-03-28 12:22:18.094  INFO 4312 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 2617 ms
-2020-03-28 12:22:18.609  WARN 4312 --- [main] l.server.config.SentryConfiguration      : Turning off sentry
-2020-03-28 12:22:18.624  INFO 4312 --- [main] l.s.c.AudioSendFactoryConfiguration      : OS: Windows 10, Arch: amd64
-2020-03-28 12:22:18.625  INFO 4312 --- [main] l.s.c.AudioSendFactoryConfiguration      : JDA-NAS supported system detected. Enabled native audio sending.
-2020-03-28 12:22:18.626  INFO 4312 --- [main] l.s.c.AudioSendFactoryConfiguration      : Setting buffer to 400ms
-2020-03-28 12:22:18.627  INFO 4312 --- [main] l.s.c.AudioSendFactoryConfiguration      : Setting playlist load limit to 6
-2020-03-28 12:22:19.066  INFO 4312 --- [main] c.s.d.l.tools.GarbageCollectionMonitor   : GC monitoring enabled, reporting results every 2 minutes.
-2020-03-28 12:22:19.797  INFO 4312 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
-2020-03-28 12:22:20.325  INFO 4312 --- [main] org.xnio                                 : XNIO version 3.3.8.Final
-2020-03-28 12:22:20.380  INFO 4312 --- [main] org.xnio.nio                             : XNIO NIO Implementation Version 3.3.8.Final
-2020-03-28 12:22:20.642  INFO 4312 --- [main] o.s.b.w.e.u.UndertowServletWebServer     : Undertow started on port(s) 2100 (http) with context path ''
-2020-03-28 12:22:20.649  INFO 4312 --- [main] lavalink.server.Launcher                 : Started Launcher in 6.131 seconds (JVM running for 7.15)
+2020-03-29 13:22:47.864  INFO 13896 --- [main] lavalink.server.Launcher                 : Starting Launcher on EitanAdam with PID 13896 (C:\Users\eitan\OmegaBot\Lavalink.jar started by eitan in C:\Users\eitan\OmegaBot)
+2020-03-29 13:22:47.865  INFO 13896 --- [main] lavalink.server.Launcher                 : No active profile set, falling back to default profiles: default
+2020-03-29 13:22:47.922  WARN 13896 --- [background-preinit] o.s.h.c.j.Jackson2ObjectMapperBuilder    : For Jackson Kotlin classes support please add "com.fasterxml.jackson.module:jackson-module-kotlin" to the classpath
+2020-03-29 13:22:54.293  WARN 13896 --- [main] io.undertow.websockets.jsr               : UT026010: Buffer pool was not set on WebSocketDeploymentInfo, the default pool will be used
+2020-03-29 13:22:54.326  INFO 13896 --- [main] io.undertow.servlet                      : Initializing Spring embedded WebApplicationContext
+2020-03-29 13:22:54.328  INFO 13896 --- [main] o.s.web.context.ContextLoader            : Root WebApplicationContext: initialization completed in 6382 ms
+2020-03-29 13:22:54.936  WARN 13896 --- [main] l.server.config.SentryConfiguration      : Turning off sentry
+2020-03-29 13:22:54.947  INFO 13896 --- [main] l.s.c.AudioSendFactoryConfiguration      : OS: Windows 10, Arch: amd64
+2020-03-29 13:22:54.948  INFO 13896 --- [main] l.s.c.AudioSendFactoryConfiguration      : JDA-NAS supported system detected. Enabled native audio sending.
+2020-03-29 13:22:54.949  INFO 13896 --- [main] l.s.c.AudioSendFactoryConfiguration      : Setting buffer to 400ms
+2020-03-29 13:22:54.950  INFO 13896 --- [main] l.s.c.AudioSendFactoryConfiguration      : Setting playlist load limit to 6
+2020-03-29 13:22:58.657  INFO 13896 --- [main] c.s.d.l.tools.GarbageCollectionMonitor   : GC monitoring enabled, reporting results every 2 minutes.
+2020-03-29 13:22:59.187  INFO 13896 --- [main] o.s.s.concurrent.ThreadPoolTaskExecutor  : Initializing ExecutorService 'applicationTaskExecutor'
+2020-03-29 13:23:00.149  INFO 13896 --- [main] org.xnio                                 : XNIO version 3.3.8.Final
+2020-03-29 13:23:00.179  INFO 13896 --- [main] org.xnio.nio                             : XNIO NIO Implementation Version 3.3.8.Final
+2020-03-29 13:23:00.519  INFO 13896 --- [main] o.s.b.w.e.u.UndertowServletWebServer     : Undertow started on port(s) 2100 (http) with context path ''
+2020-03-29 13:23:00.533  INFO 13896 --- [main] lavalink.server.Launcher                 : Started Launcher in 14.303 seconds (JVM running for 17.503)
+2020-03-29 13:23:04.523  INFO 13896 --- [XNIO-1 task-1] io.undertow.servlet                      : Initializing Spring DispatcherServlet 'dispatcherServlet'
+2020-03-29 13:23:04.528  INFO 13896 --- [XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Initializing Servlet 'dispatcherServlet'
+2020-03-29 13:23:04.537  INFO 13896 --- [XNIO-1 task-1] o.s.web.servlet.DispatcherServlet        : Completed initialization in 8 ms
+2020-03-29 13:23:04.569  INFO 13896 --- [XNIO-1 task-1] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61325
+2020-03-29 13:23:04.848  INFO 13896 --- [XNIO-1 task-1] lavalink.server.io.SocketServer          : Connection successfully established from /127.0.0.1:61325
+2020-03-29 13:23:04.872  INFO 13896 --- [XNIO-1 I/O-2] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "default-node", "timeout": 60}
+2020-03-29 13:23:20.243  INFO 13896 --- [XNIO-1 task-2] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61335
+2020-03-29 13:23:20.250  INFO 13896 --- [XNIO-1 task-2] lavalink.server.io.SocketServer          : Connection successfully established from /127.0.0.1:61335
+2020-03-29 13:23:20.252  INFO 13896 --- [XNIO-1 I/O-4] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "default-node", "timeout": 60}
+2020-03-29 13:27:45.713  INFO 13896 --- [XNIO-1 I/O-4] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61335 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key default-node
+2020-03-29 13:28:45.716  INFO 13896 --- [pool-4-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2020-03-29 13:29:50.509  INFO 13896 --- [XNIO-1 I/O-2] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61325 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key default-node
+2020-03-29 13:30:03.602  INFO 13896 --- [XNIO-1 task-3] l.server.io.HandshakeInterceptorImpl     : Incoming connection from /127.0.0.1:61422
+2020-03-29 13:30:03.609  INFO 13896 --- [XNIO-1 task-3] lavalink.server.io.SocketServer          : Connection successfully established from /127.0.0.1:61422
+2020-03-29 13:30:03.611  INFO 13896 --- [XNIO-1 I/O-3] lavalink.server.io.SocketServer          : {"op": "configureResuming", "key": "default-node", "timeout": 60}
+2020-03-29 13:30:50.512  INFO 13896 --- [pool-3-thread-1] lavalink.server.io.SocketContext         : Shutting down 0 playing players.
+2020-03-29 13:41:22.319  INFO 13896 --- [XNIO-1 I/O-3] lavalink.server.io.SocketServer          : Connection closed from /127.0.0.1:61422 with status CloseStatus[code=1006, reason=] -- Session can be resumed within the next 60 seconds with key default-node
