@@ -1,6 +1,7 @@
 import math
 import re
 import copy
+from urllib.parse import quote
 
 import asyncio
 import discord
@@ -29,6 +30,7 @@ SKIP_EMOJI = "⏭️"
 BACK_EMOJI = "◀️"
 DC_EMOJI = ""
 DEL_AFTER_TIME = 5
+OFF_EMOJI = "📴"
 # ---------------------------- #
 print(lavalink.__version__)
 
@@ -45,7 +47,7 @@ class Music(commands.Cog):
         self.get_bar = get_bar
         self.open_menus = dict()
         bot.open_menus = self.open_menus
-
+        self.ksoft_lyrics_base_url = "https://api.ksoft.si/lyrics/search?q={}"
         # This ensures the client isn't overwritten during cog reloads.
         if not hasattr(bot, 'lavalink'):  # This ensures the client isn't overwritten during cog reloads.
             bot.lavalink = lavalink.Client(bot.user.id)
@@ -123,7 +125,7 @@ class Music(commands.Cog):
                 player.add(requester=ctx.author.id, track=track)
 
             embed.title = f"{PLAY_EMOJI} Playlist Added To The Queue!"
-            other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle `disabled`')}"
+            other = f"Repeat: {(REPEAT_EMOJI if player.repeat else OFF_EMOJI)} - Shuffle: {(SHUFFLE_EMOJI if player.shuffle else OFF_EMOJI)}"
             embed.description = (
                 f'{results["playlistInfo"]["name"]} - {len(tracks)} tracks\n{other}'
             )
@@ -131,7 +133,7 @@ class Music(commands.Cog):
         else:
             track = results["tracks"][0]
             embed.title = f"{PLAY_EMOJI} Track Added To The Queue"
-            other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle `disabled`')}"
+            other = f"Repeat: {(REPEAT_EMOJI if player.repeat else OFF_EMOJI)} - Shuffle: {(SHUFFLE_EMOJI if player.shuffle else OFF_EMOJI)}"
             embed.description = (
                 f'[{track["info"]["title"]}]({track["info"]["uri"]})\n{other}'
             )
@@ -226,12 +228,12 @@ class Music(commands.Cog):
         if not player.current.stream:
             cur = int(player.position / 1000)
             dur = int(player.current.duration / 1000)
+            timeleft = dur - cur
         bar = "\n" + self.get_bar(cur, dur) if (cur and dur) else ""
-        other = f"{(REPEAT_EMOJI if player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if player.shuffle else 'Shuffle `disabled`')}"
+        other = f"Repeat: {(REPEAT_EMOJI if player.repeat else OFF_EMOJI)} - Shuffle: {(SHUFFLE_EMOJI if player.shuffle else OFF_EMOJI)}"
         cleaned_title = await (commands.clean_content(escape_markdown=True)).convert(
             ctx, player.current.title
         )
-        timeleft = ReactionMenu.update_timeleft()
 
         song = f"**[{cleaned_title}]({player.current.uri})**\n"
 
@@ -246,7 +248,12 @@ class Music(commands.Cog):
         print(player.current)
         embed.add_field(
             name="Time Left",
-            value=f"""{dur - cur} left""",
+            value=f"""{timeleft} seconds left""",
+            inline=True
+        )
+        embed.add_field(
+            name="Volume",
+            value=f"{player.volume}",
             inline=True
         )
         embed.set_thumbnail(
@@ -492,7 +499,7 @@ class ReactionMenu(menus.Menu):
                 cur = int(self.player.position / 1000)
                 dur = int(self.player.current.duration / 1000)
             bar = "\n" + self.get_bar(cur, dur) if (cur and dur) else ""
-            other = f"{(REPEAT_EMOJI if self.player.repeat else 'Repeat `disabled`')} // {(SHUFFLE_EMOJI if self.player.shuffle else 'Shuffle `disabled`')}"
+            other = f"Repeat: {(REPEAT_EMOJI if self.player.repeat else OFF_EMOJI)} - Shuffle: {(SHUFFLE_EMOJI if self.player.shuffle else OFF_EMOJI)}"
             cleaned_title = await (
                 commands.clean_content(escape_markdown=True)
             ).convert(self.ctx, self.player.current.title)
@@ -504,7 +511,6 @@ class ReactionMenu(menus.Menu):
             await self.msg.edit(embed=emb)
         except (AttributeError, discord.errors.NotFound):
             self.update_playbar.stop()
-
 
     async def send_initial_message(self, ctx, channel):
         self.ctx = ctx
@@ -533,6 +539,10 @@ class ReactionMenu(menus.Menu):
     async def on_repeat_emoji(self, payload):
         await self.ctx.invoke(self.bot.get_command("repeat"))
 
+    @menus.button(SHUFFLE_EMOJI.strip("<>"))
+    async def on_shuffle_emoji(self, payload):
+        await self.ctx.invoke(self.bot.get_command("shuffle"))
+
     @menus.button(PAUSE_EMOJI.strip("<>"))
     async def on_pause_emoji(self, payload):
         await self.ctx.invoke(self.bot.get_command("pause"))
@@ -556,7 +566,6 @@ class ReactionMenu(menus.Menu):
     @menus.button(TRASH_EMOJI.strip("<>"))
     async def on_trash_emoji(self, payload):
         self.stop()
-
 
 def setup(bot):
     bot.add_cog(Music(bot))
