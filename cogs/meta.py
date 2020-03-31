@@ -12,6 +12,7 @@ class Meta(commands.Cog):
             title="Source",
             description="https://github.com/EraseKesu/Chorus"
         )
+        await ctx.send(embed=embed)
 
 
 def setup(bot):
