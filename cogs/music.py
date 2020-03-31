@@ -1,3 +1,8 @@
+"""
+Chorus discord bot
+~ EraseKesu - class Erase#0027
+"""
+
 import math
 import re
 import copy
@@ -149,7 +154,6 @@ class Music(commands.Cog):
 
         if not player.is_playing:
             await player.play()
-        await player.set_volume(70)
 
     @commands.command()
     @commands.cooldown(1, 3, commands.BucketType.user)
