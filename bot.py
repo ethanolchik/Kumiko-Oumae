@@ -2,7 +2,7 @@
 Chorus discord bot
 ~ EraseKesu - class Erase#0027
 """
-
+import config
 import discord
 import random
 import asyncio
@@ -16,7 +16,6 @@ from os import getpid
 bot = commands.Bot(command_prefix="<>")
 bot.remove_command("help")
 
-TOKEN = os.environ.get("DISCORD_BOT_SECRET")
 
 inital_extension = [
   'cogs.userinfo',
@@ -50,10 +49,7 @@ async def ping(ctx):
     delta = int(delta.total_seconds() * 1000)
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Discord WebSocket Latency: {round(bot.latency, 5)} ms*')
 
-bot.run(TOKEN)
-
-
-
+bot.run(config.token)
 
 
 if __name__ == '__main__':
