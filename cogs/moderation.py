@@ -1,3 +1,8 @@
+"""
+Chorus discord bot
+~ EraseKesu - class Erase#0027
+"""
+
 import discord
 import asyncio
 
