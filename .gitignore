@@ -1,0 +1,19 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+
+# Database
+db_files/
+
+# API stuff
+.env
+
+# Logs from Lavalink
+
+logs/
+
+#other
+
+Lavalink.jar
+application.yml
+Procfile
+idea/
