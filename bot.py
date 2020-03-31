@@ -50,7 +50,7 @@ async def ping(ctx):
     delta = int(delta.total_seconds() * 1000)
     await pong.edit(content=f':ping_pong: Pong! ({delta} ms)\n*Discord WebSocket Latency: {round(bot.latency, 5)} ms*')
 
-bot.run('Njg1NTIxMjM2NjQ2MDM1NDkw.XoHdZQ.zvf3UcNXaJVzP6ZAmQZrfpV-56c')
+bot.run(TOKEN)
 
 
 
