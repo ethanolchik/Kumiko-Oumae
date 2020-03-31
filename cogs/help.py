@@ -1,4 +1,11 @@
+"""
+Chorus discord bot
+~ EraseKesu - class Erase#0027
+"""
+
 import discord
+import asyncio
+
 from discord.ext import commands
 
 
@@ -8,102 +15,106 @@ class Help(commands.Cog):
 
     # commands.Bot.remove_command(self, name="help")
     @commands.command()
-    async def help(self, ctx, branch=None):
-        if branch != None and branch == "music" or "Music":
-            embed = discord.Embed(
-                title="Help",
-                description="Music Commands: ",
-                colour=0x0EF7E2
-            )
-            embed.add_field(
-                name="Music",
-                value="""
-                disconnect Disconnects the player from the voice channel and clears its que.
-                format: `None`
-                find       Lists the first 10 search results from a given query.
-                format: `<>find <query>`
-                now        Shows some stats about the currently playing song.
-                format: `None`
-                pause      Pauses/Resumes the current track.
-                format: `None`
-                play       Searches and plays a song from a given query.
-                format: `<>play query / url`
-                queue      Shows the player's queue.
-                format: `None`
-                     """,
-                inline=False
-            )
-            embed.add_field(
-                name="Music: ",
-                value="""
-                remove     Removes an item from the player's queue with the given index.
-                format: `<>remove <item>` 
-                repeat     Repeats the current song until the command is invoked again.
-                format: `None`
-                seek       Seeks to a given position in a track.
-                format: `<>seek <position[1 - ...]>`
-                shuffle    Shuffles the player's queue.
-                format: `None`
-                skip       Skips the current track.
-                format: `None`
-                stop       Stops the player and clears its queue.
-                format: `None`
-                volume     Changes the player's volume. Must be between 0 and 1000.
-                format: `<>volume <value[1 - 1000]>`
-                     """,
-                inline=False
-            )
-            await ctx.send(embed=embed)
-        elif branch != None and branch == "userinfo" or "Userinfo" or "UserInfo" or "userInfo":
-                embed = discord.Embed(
-                    title="Help",
-                    description="Userinfo Commands: ",
-                    colour=0x0EF7E2
-                )
-                embed.add_field(
-                    name="Userinfo",
-                    value="""
-                user       Get user information. format: `None` or `<@user>`
-                avatar     Get users profile picture. format: 'None' or `<@user>`
-                """,
-                    inline=False
-                )
-                await ctx.send(embed=embed)
-        elif branch != None and branch == "moderation" or "Moderation" or "mod" or "Mod":
-                embed = discord.Embed(
-                    title="Help",
-                    description="Moderation Commands: ",
-                    colour=0x0EF7E2
-                )
-                embed.add_field(
-                    name="Moderation",
-                    value= """
-                    ban        Bans a member from the server
-                    format: `<>ban <@member> <reason>`
-                    hackban    Bans a member by id. this can be used to ban someone who is not in the server
-                    format: `<>hackban <memberid>`
-                    kick       Kicks a member from the server
-                    mute       mutes someone in the server. Must have a role called Muted or muted
-                    tempmute   Temporarily mutes someone in the server for a given amount of time. must have a role called Muted or muted
-                    format: `<>tempmute <@member> <time> <timevalue> <reason>`
-                    """,
-                    inline=False
-                )
-                embed.add_field(
-                    name="Moderation",
-                    value="""
-                    unban      Un-bans a member from the server
-                    format: `<>unban <@member>`
-                    unhackban  Un-hackbans someone from the server
-                    format: `<>unhackban <memberid>`
-                    unmute     unmutes someone in the server
-                    format: `<>unmute <@member>`
-                    warn       Warns a member in the guild.
-                    format: `<>warn <@member> <reason>`
-                    """,
-                    inline=False
-                )
-                await ctx.send(embed=embed)
+    async def help(self, ctx, *, command: str = None):
+
+        error = f'```css\nThat command, "{command}", does not exist!\n```'
+        if command:
+            cmd = self.bot.get_command(command)
+
+        fun = ""
+        for a in self.bot.commands:
+            print(a.cog_name)
+            if a.cog_name == "Fun":
+                if not a.hidden:
+                    fun += f"`{a.name}` | "
+                    try:
+                        for b in a.commands:
+                            fun += f"`{a.name} {b.name}` | "
+                    finally:
+                        pass
+
+        music = ""
+
+        for a in self.bot.commands:
+            if a.cog_name == "Music":
+                if not a.hidden:
+                    music += f"`{a.name}` | "
+                    try:
+                        for b in a.commands:
+                            music += f"`{a.name} {b.name} | "
+                    except:
+                        pass
+
+        userinfo = ""
+
+        for a in self.bot.commands:
+            if a.cog_name == "Userinfo":
+                if not a.hidden:
+                    userinfo += f"`{a.name}` | "
+                    try:
+                        for b in a.commands:
+                            userinfo += f"`{a.name} {b.name} | "
+                    except:
+                        pass
+
+        meta = ""
+
+        for a in self.bot.commands:
+            if a.cog_name == "Meta":
+                if not a.hidden:
+                    meta += f"`{a.name}` | "
+                    try:
+                        for b in a.commands:
+                            meta += f"`{a.name} {b.name} | "
+                    except:
+                        pass
+
+        moderation = ""
+
+        for a in self.bot.commands:
+            if a.cog_name == "Moderation":
+                if not a.hidden:
+                    moderation += f"`{a.name}` | "
+                    try:
+                        for b in a.commands:
+                            moderation += f"`{a.name} {b.name} | "
+                    except:
+                        pass
+
+        fdescription = f"""
+**FUN**
+{fun}
+
+**MUSIC**
+{music}
+
+**USERINFO**
+`user` | `avatar` | 
+
+**META**
+{meta}
+
+**MODERATION**
+{moderation}
+
+"""
+        print(fun)
+        embed = discord.Embed(
+            title="Help",
+            description=fdescription,
+            colour=0x0EF7E2
+        )
+
+        mesg = await ctx.send(embed=embed)
+
+        def check(reaction, user):
+            return user == ctx.author and str(reaction.emoji) == '<:redTick:596576672149667840>'
+
+        try:
+            await self.bot.wait_for('reaction_add', check=check, timeout=120.0)
+            await mesg.delete()
+        except asyncio.TimeoutError:
+            return
 
 
 def setup(bot):
