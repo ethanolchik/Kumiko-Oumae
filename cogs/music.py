@@ -263,6 +263,10 @@ class Music(commands.Cog):
         embed.set_thumbnail(
             url=f"https://img.youtube.com/vi/{player.current.identifier}/mqdefault.jpg"
         )
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
+        )
         m = await ctx.send(embed=embed)
         menu = ReactionMenu(m)
         await menu.start(ctx)
@@ -422,6 +426,10 @@ class Music(commands.Cog):
             o += f"`{index}.` [{track_title}]({track_uri})\n"
 
         embed = discord.Embed(color=EMBED_COLOR, description=o)
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
+        )
         await ctx.send(embed=embed)
 
     @commands.command(aliases=["dc"])
@@ -442,13 +450,16 @@ class Music(commands.Cog):
                 title="Please get in my voicechannel first.", color=EMBED_COLOR
             )
 
-            # TODO: make it so only requester can dc/stop
             return await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
         player.queue.clear()
         await player.stop()
         await self.connect_to(ctx.guild.id, None)
-        embed = discord.Embed(title=f"{STOP_EMOJI} Disconnected.", color=EMBED_COLOR)
+        embed = discord.Embed(title=f"{STOP_EMOJI} Disconnected", color=EMBED_COLOR)
+        embed.set_footer(
+            text="Thanks For using Chorus! Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
+        )
         await ctx.send(embed=embed, delete_after=DEL_AFTER_TIME)
 
     async def ensure_voice(self, ctx):
