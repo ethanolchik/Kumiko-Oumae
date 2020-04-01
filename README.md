@@ -1,2 +1,2 @@
-# OmegaBot
-omega discord bot written in discord.py
+# Chorus
+Chorus discord bot written in discord.py
