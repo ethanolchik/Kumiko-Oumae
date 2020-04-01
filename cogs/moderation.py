@@ -25,6 +25,11 @@ class Moderation(commands.Cog):
             colour=discord.Colour.from_rgb(255, 0, 0)
         )
 
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
+        )
+
         await ctx.guild.kick(member)
         await member.send(embed=embed)
         await ctx.send(embed=embed)
@@ -39,6 +44,10 @@ class Moderation(commands.Cog):
             title="Ban",
             description=f"{member.mention} has been banned from the server by {ctx.author.mention} fro {msg}!",
             colour=discord.Colour.from_rgb(225, 0, 0)
+        )
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
         )
 
 
@@ -81,6 +90,10 @@ class Moderation(commands.Cog):
             title="Mute",
             description=f"{member.mention} has been muted by {ctx.author.mention} for {msg}!",
             colour=discord.Colour.from_rgb(255, 0, 0)
+        )
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
         )
 
         await member.add_roles(role)
@@ -130,12 +143,16 @@ class Moderation(commands.Cog):
             description=f"Member Has been Temporarily Muted for {realtime / timetodivide}{timeval}",
             colour=0xe74c3c
         )
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
+        )
 
         await member.add_roles(role)
         await ctx.send(embed=embed)
         await asyncio.sleep(realtime)
         await member.remove_roles(role)
-        await ctx.author.send(f"{member} has been unmuted after {realtime}{timeval}")
+        await ctx.author.send(f"{member} has been unmuted after {realtime/timetodivide}{timeval}")
 
     @commands.command()
     @commands.has_permissions(administrator=True)
@@ -165,6 +182,11 @@ class Moderation(commands.Cog):
                 name="warns",
                 value=str(warns),
                 inline=False
+            )
+
+            embed.set_footer(
+                text="Join our support server! `https://discord.gg/YUm2sBD`",
+                icon_url=self.bot.user.avatar_url_as(static_format="png")
             )
 
         await ctx.send(embed=embed)
