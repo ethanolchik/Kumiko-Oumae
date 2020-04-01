@@ -20,7 +20,10 @@ class Meta(commands.Cog):
 
         embed = discord.Embed(
             title="Feedback",
-            description=f"{msg} \n~\n   ctx.author",
+            description=f"""
+```css
+[ {msg} ] ~{ctx.author}
+```         """,
             colour=0x0EF7E2
         )
         emb = discord.Embed(
@@ -35,6 +38,7 @@ class Meta(commands.Cog):
 
         channel = await self.bot.fetch_channel(694887120669507635)
         await channel.send(embed=embed)
+        await ctx.send(embed=emb)
 
 
 def setup(bot):
