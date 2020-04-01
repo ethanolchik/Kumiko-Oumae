@@ -53,7 +53,7 @@ class Fun(commands.Cog):
     @candy.command(aliases=["lb", "top"])
     async def leaderboard(self, ctx):
 
-        """The leaderboard of the best candy players! do you see yourself on there?"""
+        """The leaderboard of the best candy players!"""
 
         with open("db_files/candylb.json", "r") as f:
 
@@ -116,11 +116,12 @@ class Fun(commands.Cog):
                 l2[str(msg0[1].id)] = 100
 
             with open("db_files/mafiaw.json", "w") as f:
-
                 json.dump(l2, f, indent=4)
+            with open("db_files/mafialb.json", "w") as f:
+                json.dump(l, f, indent=4)
 
-    @mafia.command(aliases=["top"])
-    async def leaderboard(self, ctx):
+    @mafia.command(aliases=["top", "leaderboard"])
+    async def _leaderboard(self, ctx):
         with open("db_files/mafialb.json", "r") as f:
             l = json.load(f)
 
@@ -128,6 +129,7 @@ class Fun(commands.Cog):
             l2 = json.load(f)
 
         lb = sorted(l, key=lambda x: l[x], reverse=True)
+        lb2 = sorted(l2, key=lambda x: l[x], reverse=True)
         print(lb)
         res = ""
 
@@ -146,10 +148,15 @@ class Fun(commands.Cog):
                 u = self.bot.get_user(int(a))
                 res += f"\n**{counter}.** `{u}` - **{l[str(a)] + l2[str(a)]} 💰**"
                 print(l[str(a)])
+                print(l[str(a)])
 
         embed = discord.Embed(
             description=res,
             colour=0x0EF7E2
+        )
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
         )
         await ctx.send(embed=embed)
 
@@ -195,40 +202,30 @@ class Fun(commands.Cog):
             l = json.load(f)
         with open("db_files/mafiaw.json", "r") as f:
             l2 = json.load(f)
-        lb = sorted(l, key=lambda x: l[x], reverse=True)
-        print(lb)
-        res = ""
+        try:
+            p = l[str(ctx.author.id)]
+            p2 = l2[str(ctx.author.id)]
+        except KeyError:
+            await ctx.send("You are missing an account! To get one, play one mafia game with someone and win it!")
+            return
 
-        counter = 0
-
-        for a in lb:
-
-            counter += 1
-
-            if counter > 10:
-
-                pass
-
-            else:
-                p = l[str(ctx.author.id)]
-                p2 = l2[str(ctx.author.id)]
-
-                u = self.bot.get_user(int(a))
-                res += f"\n**{counter}.** `{u}` - **{l[str(a)]} 💰**"
-
-                embed = discord.Embed(
-                    title="Balance",
-                    description=f"""```
+        embed = discord.Embed(
+            title="Balance",
+            description=f"""```
 --------------------------------
 |   in bank     |   on you     |
 |------------------------------|
        {p}           {p2}      
                         
 ```""",
-                    colour=0x0EF7E2
-                )
+            colour=0x0EF7E2
+        )
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
+        )
 
-                await ctx.send(embed=embed)
+        await ctx.send(embed=embed)
 
     @mafia.command(aliases=["with"])
     async def withdraw(self, ctx, amount: int):
@@ -398,6 +395,68 @@ class Fun(commands.Cog):
             msg = "You are not part of a gang! To join one, type `<>mafia join <gang>`"
             await ctx.send(msg)
             return
+
+
+    @mafia.command()
+    async def shop(self, ctx, item: str = None):
+        items = {
+            "Pizza": 10,
+            "Burger": 15,
+            "Taco": 5,
+            "Coke": 5,
+            "Sprite": 5,
+            "Monster": 8
+        }
+        with open("db_files/mafiaw.json", 'r') as f:
+            l = json.load(f)
+
+        if item == None:
+            embed = discord.Embed(
+                title="Shop",
+                description="Food",
+                colour=0x0EF7E2
+            )
+            embed.add_field(
+                name="Food",
+                value="Pizza ($10) `::` Burger (15$) `::` Taco (5$)",
+                inline=False
+            )
+            embed.add_field(
+                name="Drinks",
+                value="Coke ($5) `::` Sprite (5$) `::` Monster (8$)",
+                inline=True
+            )
+            embed.set_footer(
+                text="Join our support server! `https://discord.gg/YUm2sBD`",
+                icon_url=self.bot.user.avatar_url_as(static_format="png")
+            )
+            await ctx.send(embed=embed)
+            return
+
+        for thing in items:
+            if thing == item:
+                try:
+                    if l[ctx.author.id] - items[item] >= 0:
+                        l[ctx.author.id] -= 10
+                    else:
+                        await ctx.send(f"You don't have enough money on you to buy that! Withdraw money to buy this item!.")
+                        return
+                except KeyError:
+                    await ctx.send("Could not buy item! check if you have typed in a valid item. for more support")
+                    return
+                else:
+                    with open("db_files/mafiaw.json", "w") as f:
+                        json.dump(l, f, indent=4)
+                    embed = discord.Embed(
+                        title="Shop",
+                        description=f"Successfully bought {item}!",
+                        colour=0x0EF7E2
+                    )
+
+                with open("db_files/mafiaw.json", "w") as f:
+                    json.dump(l, f, indent=4)
+
+                await ctx.send(embed=embed)
 
 
 def setup(bot):
