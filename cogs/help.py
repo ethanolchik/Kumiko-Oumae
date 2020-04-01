@@ -104,6 +104,10 @@ class Help(commands.Cog):
             description=fdescription,
             colour=0x0EF7E2
         )
+        embed.set_footer(
+            text="Join our support server! `https://discord.gg/YUm2sBD`",
+            icon_url=self.bot.user.avatar_url_as(static_format="png")
+        )
 
         mesg = await ctx.send(embed=embed)
 
