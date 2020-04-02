@@ -6,6 +6,8 @@ Chorus discord bot
 import discord
 import json
 import random
+import os
+import time
 
 from discord.ext.commands.cooldowns import BucketType
 from discord.ext import commands
@@ -89,6 +91,12 @@ class Fun(commands.Cog):
     async def mafia(self, ctx, member: discord.Member = None):
         if member == None:
             await ctx.send("Please Choose a person to fight for money!")
+            return
+
+        if member == ctx.author:
+            await ctx.send("You cannot fight yourself!")
+            return
+
         if member != None:
             embed = discord.Embed(description="💰 | First one to react to the message wins the fight!", colour=0x0EF7E2)
             msg = await ctx.send(embed=embed)
@@ -129,7 +137,6 @@ class Fun(commands.Cog):
             l2 = json.load(f)
 
         lb = sorted(l, key=lambda x: l[x], reverse=True)
-        lb2 = sorted(l2, key=lambda x: l[x], reverse=True)
         print(lb)
         res = ""
 
@@ -159,6 +166,27 @@ class Fun(commands.Cog):
             icon_url=self.bot.user.avatar_url_as(static_format="png")
         )
         await ctx.send(embed=embed)
+
+    @mafia.command()
+    async def create(self, ctx, name: str = None):
+        print(name)
+        if name == None:
+            await ctx.send("Please specify a gang to join!")
+
+        for file in os.listdir("gangs"):
+            with open(f"gangs/{file}", "r") as f:
+                l = json.load(f)
+            for user in l:
+                if user == str(ctx.author.id):
+                    await ctx.send("You are already in a gang! To leave, type `<>mafia leave`.")
+                    return
+
+        l[str(ctx.author.id)] = 1
+
+        with open(f"gangs/{name}gang.json", "w") as f:
+            json.dump(l, f, indent=4)
+
+        await ctx.send(f"You created `The {name} gang`!")
 
     @mafia.command(hidden=True)
     @commands.is_owner()
@@ -295,37 +323,20 @@ class Fun(commands.Cog):
 
     @mafia.command(aliases=["group"])
     async def gang(self, ctx):
-        with open("db_files/bloodgang.json", "r") as f:
-            l = json.load(f)
-        x = ""
-        y = 0
         embed = discord.Embed()
         embed.title = "Gang"
         embed.colour = 0x0EF7E2
-        for name in l:
-            if name == str(ctx.author.id):
-                x = "The Blood Gang"
-                embed.title = "The Blood Gang"
+        for file in os.listdir("gangs"):
+            with open(f"gangs/{file}", "r") as f:
+                print(file)
+                l = json.load(f)
+            for user in l:
+                if user == str(ctx.author.id):
+                    if file.endswith("gang.json"):
+                        file = file[:-9]
+                        msg = f"You are in `The {file} Gang`"
+                        embed.description = msg
 
-        if not str(ctx.author.id) in l:
-            y += 1
-
-        with open("db_files/hoodgang.json", "r") as f:
-            l2 = json.load(f)
-
-        for name in l2:
-            if name == str(ctx.author.id):
-                x = "The Hood Gang"
-                embed.title = "The Hood Gang"
-
-        embed.description = f"You are part of {x}"
-
-        if not str(ctx.author.id) in l2:
-            y += 1
-
-        if y == 2:
-            embed.description="You are not part of a gang yet. To join, type in `<>mafia join`."
-            embed.colour = discord.Colour.from_rgb(0, 150, 140)
         await ctx.send(embed=embed)
 
     @mafia.command()
@@ -334,71 +345,50 @@ class Fun(commands.Cog):
         if gang == None:
             await ctx.send("Please specify a gang to join!")
 
-        with open("db_files/bloodgang.json", "r") as f:
+        for file in os.listdir("gangs"):
+            with open(f"gangs/{file}", "r") as f:
                 l = json.load(f)
-
-        for user in l:
+            for user in l:
                 if user == str(ctx.author.id):
-                    await ctx.send("You are already in a gang! To leave your current one, type `<>mafia leave`")
+                    await ctx.send("You are already in a gang! To leave, type `<>mafia leave`.")
                     return
 
-        with open("db_files/hoodgang.json", "r") as f:
-                l2 = json.load(f)
+        l[str(ctx.author.id)] = 1
 
-        for user in l2:
-                if user == str(ctx.author.id):
-                    await ctx.send("You are already in a gang! To leave your current one, type `<>mafia leave`")
-                    return
+        with open(f"gangs/{gang}gang.json", "w") as f:
+            json.dump(l, f, indent=4)
 
-        if gang == "blood":
-                with open("db_files/bloodgang.json", "w") as f:
-                    l[str(ctx.author.id)] = 1
-                    json.dump(l, f, indent=4)
-                    msg = "You are now part of `The Blood Gang`!"
-                    await ctx.send(msg)
-
-        if gang == "hood":
-                with open("db_files/hoodgang.json", "w") as f:
-                    l2[str(ctx.author.id)] = 1
-                    json.dump(l2, f, indent=4)
-                    msg = "You are now part of `The Hood Gang`!"
-                    await ctx.send(msg)
+        await ctx.send(f"You joined `The {gang} gang`!")
 
     @mafia.command()
     async def leave(self, ctx):
-        y = 0
-        with open("db_files/bloodgang.json", "r") as f:
+        for file in os.listdir("gangs"):
+            with open(f"gangs/{file}", "r") as f:
+                l = json.load(f)
+            for user in l:
+                if user == str(ctx.author.id):
+                    l.pop(str(ctx.author.id))
+                with open(f"gangs/{file}", "w") as f:
+                    json.dump(l, f, indent=4)
+                    file = file[:-9]
+                    await ctx.send(f"You left the {file} gang!")
+                    break
+
+    @mafia.command()
+    async def give(self, ctx, user: discord.User = None, amount: int = None):
+        if user == None:
+            await ctx.send("Please specify a person to give money to!")
+        if amount == None:
+            await ctx.send("Please specify an amount to give!")
+
+        with open("db_files/mafiaw.json", "r") as f:
             l = json.load(f)
-        if str(ctx.author.id) in l:
-            msg = "You left `The Blood Gang`!"
-            await ctx.send(msg)
-            l.pop(str(ctx.author.id))
-            with open("db_files/bloodgang.json", "w") as f:
-                json.dump(l, f, indent=4)
 
-        if str(ctx.author.id) not in l:
-            y += 1
-
-        with open("db_files/hoodgang.json", "r") as f:
-            l2 = json.load(f)
-        if str(ctx.author.id) in l2:
-            l2.pop(str(ctx.author.id))
-            msg = "You left `The Hood Gang`!"
-            await ctx.send(msg)
-            with open("db_files/hoodgang.json", "w") as f:
-                json.dump(l2, f, indent=4)
-
-        if str(ctx.author.id) not in l2:
-            y += 1
-
-        if y == 2:
-            msg = "You are not part of a gang! To join one, type `<>mafia join <gang>`"
-            await ctx.send(msg)
-            return
-
+        
 
     @mafia.command()
     async def shop(self, ctx, item: str = None):
+        invite = "https://discord.gg/YUm2sBD"
         items = {
             "Pizza": 10,
             "Burger": 15,
@@ -436,27 +426,22 @@ class Fun(commands.Cog):
         for thing in items:
             if thing == item:
                 try:
-                    if l[ctx.author.id] - items[item] >= 0:
-                        l[ctx.author.id] -= 10
+                    if l[str(ctx.author.id)] - items[item] >= 0:
+                        l[str(ctx.author.id)] -= 10
                     else:
                         await ctx.send(f"You don't have enough money on you to buy that! Withdraw money to buy this item!.")
                         return
-                except KeyError:
-                    await ctx.send("Could not buy item! check if you have typed in a valid item. for more support")
+                except KeyError as e:
+                    await ctx.send(f"Could not buy item! Try winning a mafia game. More support: `{invite}`")
                     return
                 else:
                     with open("db_files/mafiaw.json", "w") as f:
                         json.dump(l, f, indent=4)
-                    embed = discord.Embed(
-                        title="Shop",
-                        description=f"Successfully bought {item}!",
-                        colour=0x0EF7E2
-                    )
 
                 with open("db_files/mafiaw.json", "w") as f:
                     json.dump(l, f, indent=4)
 
-                await ctx.send(embed=embed)
+                await ctx.send(f"Successfully bought {item}")
 
 
 def setup(bot):
