@@ -14,7 +14,7 @@ Moderation: `kick` `ban` `unban` `mute` `unmute` `tempmute` `hackban` `unhackban
 
 User Info: `user` `avatar`
 
-Fun: `candy` `candy leaderboard` `mafia` `mafia balance` `mafia deposit` `mafia withdraw` `mafia shop` `mafia leaderboard` `mafia gang` `mafia join` `mafia leave` `mafia create` `mafia give`
+Fun: `candy` `candy leaderboard` `mafia` `mafia balance` `mafia deposit` `mafia withdraw` `mafia shop` `mafia leaderboard` `mafia give`
 
 Meta: `source` `feedback`
 
