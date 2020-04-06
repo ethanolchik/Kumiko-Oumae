@@ -16,7 +16,7 @@ User Info: `user` `avatar`
 
 Fun: `candy` `candy leaderboard` `mafia` `mafia balance` `mafia deposit` `mafia withdraw` `mafia shop` `mafia leaderboard` `mafia give`
 
-Meta: `source` `feedback`
+Meta: `source` `feedback` `translate`
 
 # Development
 
