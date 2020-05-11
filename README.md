@@ -1,7 +1,7 @@
-# Chorus
+# Kumiko Oumae
 Chorus discord bot written in discord.py
 
-# What is Chorus?
+# What is Kumiko Oumae?
 
 Chorus, origionally Omega, is an open source discord bot providing many funcitonalities such as music, games and even moderation!
 
@@ -18,8 +18,10 @@ Fun: `candy` `candy leaderboard` `mafia` `mafia balance` `mafia deposit` `mafia 
 
 Meta: `source` `feedback` `translate`
 
++ Many More!
+
 # Development
 
-Chorus was made by class Erase#0027. It was programmed using the discord.py module and was made to bring fun to any server!
+Kumiko Oumae was made by class Erase#0027. It was programmed using the discord.py module and was made to bring fun to any server!
 
 If you have anything you want us to improve on, please use the feedback command and type in your feedback so we can improve as soon as possible. Or, join our support server [here](https://discord.gg/K5hz7Jx)!
