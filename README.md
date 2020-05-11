@@ -3,7 +3,7 @@ Chorus discord bot written in discord.py
 
 # What is Kumiko Oumae?
 
-Chorus, origionally Omega, is an open source discord bot providing many funcitonalities such as music, games and even moderation!
+Kumiko Oumae, is an open source discord bot providing many funcitonalities such as music, games and even moderation!
 
 **prefix**: `<>`
 
