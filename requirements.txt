@@ -14,7 +14,7 @@ lazy-object-proxy==1.4.3
 mccabe==0.6.1
 multidict==4.7.5
 pylint==2.4.4
-websockets==8.1
+websockets==9.1
 wrapt==1.11.2
 yarl==1.4.2
 jishaku >= 0.1.5
